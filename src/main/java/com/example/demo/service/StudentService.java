@@ -16,19 +16,32 @@ public class StudentService {
 	StudentRepository repository;
 
 	@Transactional
-	public void insertStudent(Student s) {
-		repository.save(s);
+	public Student insertStudent(Student s) {
+		return repository.save(s);
 	}
 
+	@Transactional
 	public void deleteStudent(int id) {
-		repository.delete(null);
+		repository.deleteById(id);
 	}
 
 	public Student getStudent(int id) {
-		return repository.findById(id).get();
+		Student student = null;
+		try {
+			student = repository.findById(id).get();
+		} catch (Exception e) {
+
+		}
+		return student;
+
 	}
 
 	public List<Student> listAll() {
 		return (List<Student>) repository.findAll();
+	}
+
+	@Transactional
+	public Student updateStudent(Student s) {
+		return repository.save(s);
 	}
 }
