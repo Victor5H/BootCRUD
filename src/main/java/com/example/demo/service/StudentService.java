@@ -21,8 +21,12 @@ public class StudentService {
 	}
 
 	@Transactional
-	public void deleteStudent(int id) {
+	public boolean deleteStudent(int id) {
 		repository.deleteById(id);
+		if (getStudent(id) == null) {
+			return true;
+		}
+		return false;
 	}
 
 	public Student getStudent(int id) {

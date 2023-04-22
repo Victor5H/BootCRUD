@@ -3,6 +3,8 @@ package com.example.demo.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,28 +23,46 @@ public class StudentRestController {
 	StudentService service;
 
 	@GetMapping(path = "students")
-	public List<Student> getStudents() {
-		return service.listAll();
+	public ResponseEntity<List<Student>> getStudents() {
+		List<Student> list = service.listAll();
+		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 
 	@PostMapping(path = "student/create")
-	public Student createStudent(@RequestBody Student s) {
-		return service.insertStudent(s);
+	public ResponseEntity<Student> createStudent(@RequestBody Student s) {
+		Student student = service.insertStudent(s);
+		if (student == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return ResponseEntity.ok(student);
 	}
 
-	@PutMapping(path = "student/update")
-	public Student updateStudent(@RequestBody Student s) {
-		return service.updateStudent(s);
+	@PutMapping(path = "student/update/{id}")
+	public ResponseEntity<Student> updateStudent(@RequestBody Student s, @PathVariable int id) {
+		s.setId(id);
+		Student student = service.updateStudent(s);
+		if (student == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<>(student, HttpStatus.CREATED);
 	}
 
 	@GetMapping(path = "student/{id}")
-	public Student getStudent(@PathVariable int id) {
-		return service.getStudent(id);
+	public ResponseEntity<Student> getStudent(@PathVariable int id) {
+		Student student = service.getStudent(id);
+		if (student == null) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(null);
 	}
 
 	@DeleteMapping(path = "student/delete/{id}")
-	public void deleteStudent(@PathVariable int id) {
-		service.deleteStudent(id);
+	public ResponseEntity<Void> deleteStudent(@PathVariable int id) {
+		boolean flag = service.deleteStudent(id);
+		if (flag) {
+			return ResponseEntity.ok().build();
+		}
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 
 }
